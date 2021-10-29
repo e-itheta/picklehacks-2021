@@ -2,10 +2,9 @@
 A multiplayer game for pickle hacks
 
 Developed by:
-Eric Duong
-
-Kevin Lai
-
+* Eric Duong
+* Matt Minatra
+* Kevin Lai
 # install
 
 ```
