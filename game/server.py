@@ -69,7 +69,7 @@ def count_players_near_id(entity_id:int):
 
 
 async def update_player_petrification_state(entity_id):
-
+    """Count the number of ghosts near entity and """
     while True:
         if entity_id in player_ids and entity_id in clients:
             if count_ghosts_near_id(entity_id) >= GHOST_COUNT_FOR_PETRIFICATION:
@@ -152,7 +152,6 @@ async def generate_ghosts():
                     
 
                     if count_players_near_id(closest["id"]) > 0:  # if the players are grouped, flip direction of ghost movement (repel)
-                        print(closest)
                         dx = dx * -1
                         dy = dy * -1
 
@@ -182,10 +181,11 @@ async def generate_ghosts():
                 break
             await asyncio.sleep(1/10)
 
-    for _ in range(5):
+    # Spawn 40 ghosts randomnly around map
+    for _ in range(40):
         id = next(id_gen)
         clients[id] = {
-            "pos": [2, id],
+            "pos": [random.randint(1, 159), random.randint(1, 299)],
             "reprchar": "\u01EA",
             "id": id
         }
