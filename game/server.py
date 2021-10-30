@@ -93,7 +93,7 @@ async def handler(ws, path):
 
     reprchar = next(char_gen)
 
-    init = clients[idcounter] = {
+    init = clients[id] = {
         "pos": next(pos_gen),
         "reprchar": reprchar,
         "id": id,
@@ -148,6 +148,10 @@ async def generate_ghosts():
                         dx = -1
                     elif player_x - x > 0:
                         dx = +1
+
+                    # if (count_players_near_id(closest) > 2):  # if the players are grouped, flip direction of ghost movement (repel)
+                    #   dx = dx * -1
+                    #   dy = dy * -1
 
                 # dy, dx = random.randint(-1, 1), random.randint(-1, 1)
                 if 0 < y + dy < 160:

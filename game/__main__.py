@@ -20,11 +20,7 @@ def main(stdscr: curses.window):
     camera.position[:] = 0, 0
 
 
-    async def update_frame(ws):
-        async for message in ws:
-            data = json.loads(message)
 
-            mapdata.update_data(data)
             
 
     async def _main():
@@ -35,7 +31,24 @@ def main(stdscr: curses.window):
             #Get entity data from server
             message = json.loads(await ws.recv())
             player.position[:] = message["pos"]
-            player.reprchar = message["reprchar"]
+            char = player.reprchar = message["reprchar"]
+            player.id = message["id"]
+
+            async def update_frame(ws):
+                async for message in ws:
+                    data = json.loads(message)
+                    mapdata.update_data(data)
+                    
+                    
+                    
+                    if str(player.id) in data:
+                        playerdata = data[str(player.id)]
+                        if playerdata["petrified"]:
+                            player.reprchar = "X"
+                        else:
+                            player.reprchar = char
+                    
+
 
             loop.create_task(update_frame(ws))
 
@@ -51,26 +64,30 @@ def main(stdscr: curses.window):
                 
                 last_pos = list(player.position)
 
+                tmp_pos = list(player.position)
+
                 # Update player position in 4 possible directions wasd
                 if keysym == "w":
                     candidate = player.position[0] - 1
                     if mapdata.data[candidate][player.position[1]] in render.TRAVERSABLE_CHARS: # determine whether candidate position is legal, if not do nothing
-                        player.position[0] -= 1
+                        tmp_pos[0] -= 1
                 elif keysym == "s":
                     candidate = player.position[0] + 1
                     if mapdata.data[candidate][player.position[1]] in render.TRAVERSABLE_CHARS:
-                        player.position[0] += 1
+                        tmp_pos[0] += 1
                 elif keysym == "a":
                     candidate = player.position[1] - 1
                     if mapdata.data[player.position[0]][candidate] in render.TRAVERSABLE_CHARS:
-                        player.position[1] -= 1
+                        tmp_pos[1] -= 1
                 elif keysym == "d":
                     candidate = player.position[1] + 1
                     if mapdata.data[player.position[0]][candidate] in render.TRAVERSABLE_CHARS:
-                        player.position[1] += 1
+                        tmp_pos[1] += 1
                 
-                if last_pos != player.position:
-                    await ws.send(json.dumps(player.position))
+                if last_pos != tmp_pos and player.reprchar != "X":
+                    player.position[:] = tmp_pos
+                    await ws.send(json.dumps(tmp_pos))
+                    
 
                 
                 player_pos = camera.relative_entity_position()
