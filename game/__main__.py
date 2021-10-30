@@ -4,6 +4,7 @@ from . import render
 from . import entity
 import curses
 import websockets
+import json
 
 @curses.wrapper
 def main(stdscr: curses.window):
@@ -18,10 +19,26 @@ def main(stdscr: curses.window):
     camera = render.Camera(player, mapdata)
     camera.position[:] = 0, 0
 
+
+    async def update_frame(ws):
+        async for message in ws:
+            data = json.loads(message)
+
+            mapdata.update_data(data)
+            
+
     async def _main():
 
         # Connect to Kevin's websocket server that he hosts
         async with websockets.connect("ws://e-itheta.com/picklehacks-2021") as ws:
+
+            #Get entity data from server
+            message = json.loads(await ws.recv())
+            player.position[:] = message["pos"]
+            player.reprchar = message["reprchar"]
+
+            loop.create_task(update_frame(ws))
+
             for game_map in camera:
                 
                 # Update map if terminal size changes
@@ -31,6 +48,8 @@ def main(stdscr: curses.window):
                     keysym = chr(keysym) # cast to a string
                 else:
                     keysym = ""
+                
+                last_pos = list(player.position)
 
                 # Update player position in 4 possible directions wasd
                 if keysym == "w":
@@ -58,6 +77,10 @@ def main(stdscr: curses.window):
                     else:
                         player.position[1] += 1
                 
+                if last_pos != player.position:
+                    await ws.send(json.dumps(player.position))
+
+                
                 player_pos = camera.relative_entity_position()
                 
 
@@ -72,7 +95,7 @@ def main(stdscr: curses.window):
                 
                 
                 stdscr.refresh()
-                await asyncio.sleep(1/30)
+                await asyncio.sleep(1/60)
     
     render.Map.columns,  render.Map.lines, = os.get_terminal_size()
     

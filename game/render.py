@@ -26,7 +26,7 @@ class Map:
     columns = 0
 
     def __init__(self, file: "TextIOWrapper"):
-        self._data = tuple(row.strip() for row in file.readlines())[::-1]
+        self._orig = self._data = tuple(row.strip() for row in file.readlines())[::-1]
         self._nrows = len(self._data)
         self._ncols = len(self._data[0])
 
@@ -38,6 +38,18 @@ class Map:
     def nrows(self):
         return self._nrows
     
+    def update_data(self, clients):
+        tmp = [list(row) for row in self._orig]
+        
+        for client in clients.values():
+            y, x = client["pos"]
+            char = client["reprchar"]
+
+            tmp[y][x] = char
+        
+        self._data = [ "".join(row) for row in tmp ]
+
+
     @property
     def ncols(self):
         return self._ncols
