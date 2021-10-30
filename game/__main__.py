@@ -25,7 +25,11 @@ def main(stdscr: curses.window):
             player.render(camera)
             
             for row in game_map:
-                stdscr.addstr("".join(row))
+                try:
+                    stdscr.addstr("".join(row))
+                except:
+                    pass
+
             stdscr.refresh()
             await asyncio.sleep(1/30)
     
