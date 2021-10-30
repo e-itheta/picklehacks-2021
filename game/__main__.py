@@ -29,14 +29,31 @@ def main(stdscr: curses.window):
             else:
                 keysym = ""
 
+            # Update player position in 4 possible directions wasd
             if keysym == "w":
-                player.position[0] -= 1
+                candidate = player.position[0] - 1
+                if mapdata.data[candidate][player.position[1]] != " ": # determine whether candidate position is legal, if not do nothing
+                    pass
+                else:
+                    player.position[0] -= 1
             elif keysym == "s":
-                player.position[0] += 1
+                candidate = player.position[0] + 1
+                if mapdata.data[candidate][player.position[1]] != " ":
+                    pass
+                else:
+                    player.position[0] += 1
             elif keysym == "a":
-                player.position[1] -= 1
+                candidate = player.position[1] - 1
+                if mapdata.data[player.position[0]][candidate] != " ":
+                    pass
+                else:
+                    player.position[1] -= 1
             elif keysym == "d":
-                player.position[1] += 1
+                candidate = player.position[1] + 1
+                if mapdata.data[player.position[0]][candidate] != " ":
+                    pass
+                else:
+                    player.position[1] += 1
             
             
 
