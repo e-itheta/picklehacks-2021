@@ -59,7 +59,7 @@ def count_ghosts_near_id(entity_id):
                 count += 1
     return count
 
-def count_players_near_id(entity_id):
+def count_players_near_id(entity_id:int):
     count = 0
     for player_id in player_ids:
         if player_id != entity_id:
@@ -148,10 +148,13 @@ async def generate_ghosts():
                         dx = -1
                     elif player_x - x > 0:
                         dx = +1
+                    
+                    
 
-                    # if (count_players_near_id(closest) > 2):  # if the players are grouped, flip direction of ghost movement (repel)
-                    #   dx = dx * -1
-                    #   dy = dy * -1
+                    if count_players_near_id(closest["id"]) > 0:  # if the players are grouped, flip direction of ghost movement (repel)
+                        print(closest)
+                        dx = dx * -1
+                        dy = dy * -1
 
                 # dy, dx = random.randint(-1, 1), random.randint(-1, 1)
                 if 0 < y + dy < 160:
