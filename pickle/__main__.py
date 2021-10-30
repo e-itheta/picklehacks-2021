@@ -14,7 +14,7 @@ def main():
         camera.position[:] = 0, 0
 
         for game_map in camera:
-
+            print("\033c")
             player_pos = camera.relative_entity_position()
             
             
