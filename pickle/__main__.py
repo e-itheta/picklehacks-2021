@@ -24,7 +24,7 @@ def main():
             print("\n".join("".join(r for r in row) for row in game_map), end="")
             await asyncio.sleep(1/30)
     
-    render.Map.lines, render.Map.columns = os.get_terminal_size()
+    render.Map.columns,  render.Map.lines, = os.get_terminal_size()
     
     loop = asyncio.get_event_loop()
     loop.create_task(_main())
