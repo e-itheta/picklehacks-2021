@@ -54,27 +54,19 @@ def main(stdscr: curses.window):
                 # Update player position in 4 possible directions wasd
                 if keysym == "w":
                     candidate = player.position[0] - 1
-                    if mapdata.data[candidate][player.position[1]] != " ": # determine whether candidate position is legal, if not do nothing
-                        pass
-                    else:
+                    if mapdata.data[candidate][player.position[1]] in render.TRAVERSABLE_CHARS: # determine whether candidate position is legal, if not do nothing
                         player.position[0] -= 1
                 elif keysym == "s":
                     candidate = player.position[0] + 1
-                    if mapdata.data[candidate][player.position[1]] != " ":
-                        pass
-                    else:
+                    if mapdata.data[candidate][player.position[1]] in render.TRAVERSABLE_CHARS:
                         player.position[0] += 1
                 elif keysym == "a":
                     candidate = player.position[1] - 1
-                    if mapdata.data[player.position[0]][candidate] != " ":
-                        pass
-                    else:
+                    if mapdata.data[player.position[0]][candidate] in render.TRAVERSABLE_CHARS:
                         player.position[1] -= 1
                 elif keysym == "d":
                     candidate = player.position[1] + 1
-                    if mapdata.data[player.position[0]][candidate] != " ":
-                        pass
-                    else:
+                    if mapdata.data[player.position[0]][candidate] in render.TRAVERSABLE_CHARS:
                         player.position[1] += 1
                 
                 if last_pos != player.position:

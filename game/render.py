@@ -14,7 +14,7 @@ BUFFER_RADIUS = 10
 OCCLUSION_CHARS = {"▄", "▐", "█"}
 OCCLUDED_CHAR = "."
 WALL_CHAR = "W"
-TRAVERSABLE_CHARS = {" "}
+TRAVERSABLE_CHARS = {" ", "|", "-"}
 
 # Derived
 ARC_RADIANS = math.pi / (4 * VIEW_RADIUS)
@@ -27,7 +27,7 @@ class Map:
     columns = 0
 
     def __init__(self, file: "TextIOWrapper"):
-        self._orig = self._data = tuple(row.strip() for row in file.readlines())[:-1]
+        self._orig = self._data = tuple(row.strip() for row in file.readlines())[:]
         self._nrows = len(self._data)
         self._ncols = len(self._data[0])
 
