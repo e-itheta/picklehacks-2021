@@ -4,6 +4,7 @@ import asyncio
 
 if TYPE_CHECKING:
     from . import entity
+    from io import TextIOWrapper
 
 
 VIEW_RADIUS = 30
@@ -158,15 +159,36 @@ def apply_occlusion_layer(chunk: List[List[str]], pos: Tuple[int, int]):
 
 
 class Camera:
+    """
+    A camera represents a view port of the entire map. It is 'bound' to an 
+    entity and follows it indirectly. The view port is big enough to capture the 
+    occulusion radius.
+    """
+    
+    free_move_size = (0, 0) # Default value
 
     def __init__(self, entity: "entity.Entity", map: Map):
+        # The entity to follow
         self.bound_entity = entity
-        self.bound_map = map
-        self.position = [0, 0]
+
+        # The global map
+        self.bound_map = map   # The global map
+        
+        # Position of the camera relative to the global map
+        self.position = [0, 0] 
+        
+        # The internal offset where the player may move freely within the
+        # view port without the map panning underneath. This is a generated
+        # value
         self._free_move_offset = [0, 0]
         
     
     def _view(self):
+        """
+        Internal method that generates a "chunk" based on the camera position
+        relative to the global map
+        """
+        
         NROWS, NCOLS = Map.lines, Map.columns
         row, col = self.position
         return [
@@ -175,6 +197,9 @@ class Camera:
         ]
 
     def __iter__(self):
+        """
+        Return a generator that generates a new view on each iteration
+        """
         while True:
             self.current_view = self._view()
             yield self.current_view
@@ -182,8 +207,12 @@ class Camera:
     def bind(self, entity):
         self.bound_entity = entity
 
-    
+
     def relative_position(self, pos: Tuple[int, int], boundcheck=False):
+        """
+        Given the global position <pos>, return the position relative to the 
+        view port after factoring in current camera position  
+        """
         row, col = pos
         r_row, r_col = row - self.position[0], col - self.position[1]
         if boundcheck and not (0 <= r_row < len(self.current_view) and 0 <= r_col < len(self.current_view[0])):
@@ -192,6 +221,11 @@ class Camera:
     
 
     async def update_box(self):
+        """
+        Continuously update camera parameters based on terminal size and entity
+        position.
+        """
+
         while True:
             NROWS, NCOLS =  Map.lines, Map.columns
             row, col = self.position
