@@ -19,11 +19,9 @@ def main(stdscr: curses.window):
     camera.position[:] = 0, 0
 
     async def _main():
-        
 
         # Connect to Kevin's websocket server that he hosts
         async with websockets.connect("ws://e-itheta.com/picklehacks-2021") as ws:
-                
             for game_map in camera:
                 
                 # Update map if terminal size changes
