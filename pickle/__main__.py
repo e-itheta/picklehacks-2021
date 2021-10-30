@@ -2,9 +2,13 @@ import asyncio
 import os
 from . import render
 from . import entity
+import curses
 
-def main():
-    
+@curses.wrapper
+def main(stdscr: curses.window):
+    stdscr.nodelay(1)
+
+
     async def _main():
         with open("maps/mst_campus.txt", "r") as fp:
             mapdata = render.Map(fp)
@@ -14,14 +18,15 @@ def main():
         camera.position[:] = 0, 0
 
         for game_map in camera:
-            print("\033c")
             player_pos = camera.relative_entity_position()
             
             
             render.apply_occlusion_layer(game_map, player_pos)
             player.render(camera)
-
-            print("\n".join("".join(r for r in row) for row in game_map), end="")
+            
+            for row in game_map:
+                stdscr.addstr("".join(row))
+            stdscr.refresh()
             await asyncio.sleep(1/30)
     
     render.Map.columns,  render.Map.lines, = os.get_terminal_size()
