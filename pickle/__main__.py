@@ -13,9 +13,8 @@ def main():
         camera = render.Camera(player, mapdata)
         camera.position[:] = 0, 0
 
-        for view in camera:
+        for game_map in camera:
 
-            game_map = next(view)
             player_pos = camera.relative_entity_position()
             
             
