@@ -39,8 +39,11 @@ class BaseEntity:
         pos = camera.relative_position(self.position)
         if pos is None:
             return
+        y, x = pos
             
         # TODO copy into camera
+
+        view[y][x] = self.reprchar
 
 
 class Entity(BaseEntity):

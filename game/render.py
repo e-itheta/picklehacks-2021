@@ -151,6 +151,7 @@ class Camera:
         self.bound_entity = entity
         self.bound_map = map
         self.position = [0, 0]
+        self._free_move_offset = [0, 0]
         
     
     def _view(self):
@@ -180,8 +181,7 @@ class Camera:
 
     async def update_box(self):
         while True:
-            size = Map.lines, Map.columns
-            NROWS, NCOLS = size.lines, size.columns
+            NROWS, NCOLS =  Map.lines, Map.columns
             row, col = self.position
 
             if row + NROWS > self.bound_map.nrows:
