@@ -1,5 +1,10 @@
 from typing import *
 import math
+import asyncio
+
+if TYPE_CHECKING:
+    from . import entity
+
 
 VIEW_RADIUS = 30
 BUFFER_RADIUS = 10
@@ -139,4 +144,134 @@ def apply_occlusion_layer(chunk: List[List[str]], pos: Tuple[int, int]):
             if (i, j) not in render_set:
                 chunk[i][j] = OCCLUDED_CHAR
 
+
+class Camera:
+
+    def __init__(self, entity: "entity.Entity", map: Map):
+        self.bound_entity = entity
+        self.bound_map = map
+        self.position = [0, 0]
+        
     
+    def _view(self):
+        NROWS, NCOLS = Map.lines, Map.columns
+        row, col = self.position
+        return [
+                [self.bound_map.data[i][j] for j in range(col, col + NCOLS)]
+                for i in range(row, row + NROWS)
+        ]
+
+    def __iter__(self):
+        while True:
+            self.current_view = self._view()
+            yield self.current_view
+
+    def bind(self, entity):
+        self.bound_entity = entity
+
+    
+    def relative_position(self, pos: Tuple[int, int], boundcheck=False):
+        row, col = pos
+        r_row, r_col = row - self.position[0], col - self.position[1]
+        if boundcheck and not (0 <= r_row < len(self.current_view) and 0 <= r_col < len(self.current_view[0])):
+            return None
+        return int(r_row), int(r_col)
+    
+
+    async def update_box(self):
+        while True:
+            size = Map.lines, Map.columns
+            NROWS, NCOLS = size.lines, size.columns
+            row, col = self.position
+
+            if row + NROWS > self.bound_map.nrows:
+                row = self.bound_map.nrows - NROWS
+            if col + NCOLS > self.bound_map.ncols:
+                col = self.bound_map.ncols - NCOLS
+
+            assert BUFFER_RADIUS * 2 <= NROWS, "Bigger terminal needed" 
+            assert BUFFER_RADIUS * 2 <= NCOLS, "Bigger terminal needed"
+
+            if not row:
+                free_move_row_offset = 0
+                free_move_row_size = NROWS - BUFFER_RADIUS
+            elif row + NROWS == self.bound_map.nrows:
+                free_move_row_offset = BUFFER_RADIUS
+                free_move_row_size = NROWS - BUFFER_RADIUS
+            else:
+                free_move_row_offset = BUFFER_RADIUS
+                free_move_row_size = NROWS - BUFFER_RADIUS * 2
+            
+            if not col:
+                free_move_col_offset = 0
+                free_move_col_size = NCOLS - BUFFER_RADIUS
+            elif col + NCOLS == self.bound_map.ncols:
+                free_move_col_offset = BUFFER_RADIUS
+                free_move_col_size = NCOLS - BUFFER_RADIUS
+            else:
+                free_move_col_offset = BUFFER_RADIUS
+                free_move_col_size = NCOLS - BUFFER_RADIUS * 2
+
+            self._free_move_offset = (free_move_row_offset, free_move_col_offset)
+            self.free_move_size = (free_move_row_size, free_move_col_size)
+            await asyncio.sleep(1/60)
+    
+
+
+    @property
+    def free_move_position(self):
+        return (
+            self.position[0] + self._free_move_offset[0],
+            self.position[1] + self._free_move_offset[1],
+        )
+    
+
+    def entity_in_free_move(self):
+        b_row, b_col = self.free_move_position
+        b_row_end, b_col_end = b_row + self.free_move_size[0], b_col + self.free_move_size[1]
+        return b_row <= self.bound_entity.row < b_row_end and b_col <= self.bound_entity.row < b_col_end
+    
+    
+    def entity_free_move_offset(self):
+
+        b_row, b_col = self.free_move_position
+        b_row_end, b_col_end = b_row + self.free_move_size[0], b_col + self.free_move_size[1]
+        
+        if b_row <= self.bound_entity.row < b_row_end and b_col <= self.bound_entity.col < b_col_end:
+            return 0, 0
+        
+        if self.bound_entity.row < b_row:
+            row_offset =  self.bound_entity.row - b_row
+            assert row_offset < 0
+        elif self.bound_entity.row > b_row_end:
+            row_offset = self.bound_entity.row - b_row_end
+            assert row_offset > 0 
+        else:
+            row_offset = 0
+        
+        if self.bound_entity.col < b_col:
+            col_offset =  self.bound_entity.col - b_col
+            assert col_offset < 0
+        elif self.bound_entity.col > b_col_end:
+            col_offset = self.bound_entity.col - b_col_end
+            assert col_offset > 0
+        else:
+            col_offset = 0
+        
+        return row_offset, col_offset
+
+
+    
+    def relative_entity_position(self):
+        return self.bound_entity.row - self.position[0], self.bound_entity.col - self.position[1]
+
+
+    async def update_position(self):
+        while True:
+            try:
+                row_offset, col_offset = self.entity_free_move_offset()
+                self.position[0] += row_offset
+                self.position[1] += col_offset
+                await asyncio.sleep(1/30)
+            except:
+                exit()
