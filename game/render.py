@@ -14,7 +14,7 @@ BUFFER_RADIUS = 10
 OCCLUSION_CHARS = {"▄", "▐", "█"}
 OCCLUDED_CHAR = "."
 WALL_CHAR = "W"
-TRAVERSABLE_CHARS = {" ", "|", "-"}.union({ chr(x) for x in range(65, 91) if chr(x) != "W" }) # Add upper case letters to traversable chars
+TRAVERSABLE_CHARS = {" ", "|", "-", "3"}.union({ chr(x) for x in range(65, 91) if chr(x) != "W" }) # Add upper case letters to traversable chars
 
 # Derived
 ARC_RADIANS = math.pi / (4 * VIEW_RADIUS)

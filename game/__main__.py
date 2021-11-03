@@ -20,9 +20,6 @@ def main(stdscr: curses.window):
     camera.position[:] = 0, 0
 
 
-
-            
-
     async def _main():
 
         # Connect to Kevin's websocket server that he hosts
@@ -102,8 +99,9 @@ def main(stdscr: curses.window):
                     except:
                         pass
                 
-                
+    
                 stdscr.refresh()
+    
                 await asyncio.sleep(1/60)
     
     render.Map.columns,  render.Map.lines, = os.get_terminal_size()

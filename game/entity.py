@@ -41,7 +41,6 @@ class BaseEntity:
             return
         y, x = pos
             
-        # TODO copy into camera
 
         view[y][x] = self.reprchar
 
@@ -58,4 +57,12 @@ class Player(Entity):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        
+    def update_pos(self, validate):
+        new_y, new_x = (
+            self.position[0] * self.throttle[0],
+            self.position[1] * self.throttle[1]
+        )
+        if validate((new_y, new_x)):
+            self.position[:] = new_y, new_x            
+            return 0
+        return -1
