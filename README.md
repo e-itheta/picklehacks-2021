@@ -8,11 +8,18 @@ Developed by:
 * Eric Duong
 * Matt Minatra
 * Kevin Lai
-# install
 
-![](/replit.gif)
+# How to play
 
+1. Go to https://replit.com and sign in with your github account
+![replit](/replit.gif)
+
+2. Open the shell and run the following commands
 ```
+git clone https://github.com/e-itheta/picklehacks-2021
+cd picklehacks-2021
 pip3 install -r requirements.txt
-python3 main.py
+python3 -m game
 ```
+
+![clone](/rungame.gif)
